@@ -1,0 +1,476 @@
+# -*- coding: utf-8 -*-
+"""
+This is a collection of functions useful for code breaking.
+
+
+
+
+Here is a list of them (if you are using spyder, ctrl+click to go to the
+function, where there is an explanation and an example in comments):
+
+
+
+
+Useful for Cipher challenge in particular:
+
+ - reversestring(string): This reverses the input string.
+
+ - affineshifttext(text, shift=1, mul=1): This outputs the text, with all 
+   letters changed to a number relative to the position of it in the alphabet,
+   this number is x. Then the transformation mul(x) + shift -> x is applied.
+   The numbers are then converted back into letters.
+
+ - frequencyanalise(text): This outputs a list that has 26 itms. Each item
+   corresponds to a letter of the alphabet, and each item is the pefrcentage
+   that that letter makes up of the message.
+
+ - solvetranspostype2(text, keylen=0, hit=0): This solves a transposition
+   cipher, the columnar transposition cipher, but it is the transposition
+   cipher where you read down the columns. By default it will try lots of
+   different keyword lengths, dependent on the factors of the length of the
+   text, however you can also specify a keyword length (keylen), and it will
+   try all keywords of that length.
+
+ - englishdetection(text): This outputs a number. The higher it is, the more
+   likely that it is English.
+
+ - solveaffine(text): This solves an affine shift cipher. The only input is
+   text. This is self-explanatory.
+
+ - solvecaesar(text): This is just like the above, but with caesar shift
+   instead.
+
+ - solvetranspostype1(text, keylen=0, hit=0): This solves a transposition 
+   cipher, the columnar transposition cipher, but it is the transposition
+   cipher where you read along the rows. By default it will try lots of
+   different keyword lengths, dependent on the factors of the length of the
+   text, however you can also specify a keyword length (keylen), and it will
+   try all keywords of that length.
+
+
+
+
+
+Extra functions used in the functions above, that could be useful:
+
+ - transpostype1(text, key, ed=0, padding="x"): This encrypts with the
+   columnar transposition method, but where at the end you read down the
+   columns. The key is a list of consecutive numbers, but not necessarily in
+   a consecutive order. This is the way it will reorder the columns. The
+   padding input is for padding, and ed decides whether to encrypt or decrypt,
+   if it is 0 it encrypts, anything else it will decrypt.
+   
+ - transpostype1(text, key, ed=0, padding="x"): This encrypts with the
+   columnar transposition method, but where at the end you read along the
+   rows. The key is a list of consecutive numbers, but not necessarily in
+   a consecutive order. This is the way it will reorder the columns. The
+   padding input is for padding, and ed decides whether to encrypt or decrypt,
+   if it is 0 it encrypts, anything else it will decrypt.
+
+ - wordnum(word): This turns a string into a list of numbers relative to the
+   place in the alphabet.
+
+ - numword(num): This turns list of numbers into a string.
+
+ - mynot(boolean): This is a not gate.
+
+ - myrange(num): This is the same as the "range" function, but it doesn't have
+   a limit.
+
+ - factorial(number): This outputs the factorial of the input.
+ 
+ - calculateioc(text, accuracy=6): This outputs the ioc of the first input,
+   and the second input is the maximum length of the distance between
+   characters it can check.
+   
+ - factorialgen(items, amount): This outputs "Error!", if an item appears in
+   the list items more than once, otherwise it outputs items, but with the
+   order changed round, so that for every value of amount, up to length of
+   items factorial, there are no repeats of the same order.
+
+ - onlyletters(text): This outputs the input text, with all non-letter
+   characters removed, and all letters put to lower case.
+
+ - tentobase(number, base): This outputs the first input (number), changed
+   from base 10 to base stated in the second input.
+
+ - splittext(text, split): This outputs the text, split into lists, where the
+   first list contains the first letter, the second list contains the second
+   letter and so on, bu when it runs out of lists, it goes back to the first
+   list. The number of lists used is the number split.
+
+ - findfactors(num): This finds all the faactors of num, below it's square
+   root.
+
+ - vigeneretext(text, key, ed=0): This applies an encryption or decryption,
+   (if ed is 0 it encrypts) using the vigenere cipher, with the message text,
+   nd the keyword key. (This function is Matthew Hall)
+
+"""
+
+from math import ceil
+
+def factorial(number):
+    #This outputs the factorial of the input
+    if number > 1:
+        return(number * factorial(number - 1))
+    else:
+        return(1)
+    #Example
+    #print(factorial(3))
+    #This outputs 6, because 1 * 2 * 3 = 6, or 3! = 6
+
+def calculateioc(text, accuracy=0):
+    #This calculates the ioc of text, with more accuracy if accuracy is increased.
+    total = 0
+    number = 0
+    for i in range (len(text) - (accuracy + 1)):
+        for j in range (accuracy):
+            total += 1
+            if text[i] == text[i - j + 1]:
+                number += 1
+    return((number) * 10000 / total)
+    #Example
+    #print(calculateioc("PIZZGQPIDMAKIVVMLBPMMVKZGXBMLVWBMBPMXWTQKMNWCVLWVRIUMTQIALMASIVLIBBIKPMLQBNWZGWCBWTWWSIBBPMXWTQKMLMKZGXBMLQBNWZBPMUAMTDMAQBQADMZGABZIQOPBNWZEIZLWVKMGWCZMITQAMBPIBQBPIAJMMVEZQBBMVJIKSEIZLAQBRCABCAMAIKIMAIZAPQNBKQXPMZBPMWNNQKMZQVKPIZOMWNBPMQVDMABQOIBQWVUILMQBKTMIZBWUMBPIBPMBPQVSABPQAXZWDMARIUMTQILMIBPXMZAWVITBZIOMLGKIZMTMAA", 1))
+    #This outputs 280, but this function seems a bit useless so I won't use it.
+
+def affineshifttext(text, shift=1, mul=1):
+    # This takes a message (text), converts it into numbers, multiplies by mul, adds "shift" and turns it back into letters and outputs it.
+    plaintext = text.lower()
+    alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    for i in alphabet:
+        plaintext = plaintext.replace(i, alphabet[((alphabet.index(i) * mul) + shift) % 26].upper())
+    return(plaintext)
+    #Example:
+    #print(shifttext("gdkkn", 1, 1))
+    #Outputs "hello", because gdkkn is hello caesar shifted by 25, so shifting it by 1 will make it back into hello.
+    #Note: This can be used for caesar shift, and you don't have to put the extra 1 at the end, it is 1 by default.
+    
+def frequencyanalise(text):
+    #This outputs the percentage of the text that each letter makes up.
+    frequencies = []
+    textlist = []
+    alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    for i in text:
+        if alphabet.count(i) == 1:
+            textlist.append(i)
+    for i in alphabet:
+        frequency = (((textlist.count(i)) * 100) / len(text))
+        frequencies.append(frequency)
+    return(frequencies)
+    #Example
+    #print(frequencyanalise("hello my name is daniel"))
+    #This outputs [8, 0, 0, 4, 13, 0, 0, 4, 8, 0, 0, 13, 8, 8, 4, 0, 0, 0, 4, 0, 0, 0, 0, 0, 4, 0], and this says what percentage of the message each character makes up, e.g. a takes up 8% of the message.
+    
+def factorialgen(items, amount):
+    #This code outputs possibilities of ways to order the list items, if an item repeats, this outputs "Error!". Otherwise it outputs the amountth possibility.
+    test = []
+    for i in items:
+        test.append(items.count(i))
+    if test.count(1) == len(test):
+        answer = items[amount // factorial(len(items) - 1)]
+        newitems = []
+        for i in items:
+            if i != answer:
+                newitems.append(i)
+        output = []
+        if len(items) > 1:
+            output = factorialgen(newitems, amount - (amount // factorial(len(items) - 1)) * factorial(len(items) - 1))
+        output.reverse()
+        output.append(answer)
+        output.reverse()
+        return(output)
+    else:
+        return("Error!")
+    #Example
+    #print(factorialgen([1, 2, 3], 0))
+    #This outputs [1, 2, 3], because it is the 0th way in which you could order the numbers 1, 2 and 3.
+
+def onlyletters(text):
+    #This outputs the text, with all capitalisation changed to lower case, and everything but letters are removed.
+    alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    output = []
+    newtext = text.lower()
+    for i in newtext:
+        if i in alphabet:
+            output.append(i)
+    return(''.join(output))
+    #Example
+    #print(onlyletters("Testing....,.,.,:;;"))
+    #This outputs "testing", because the capital has been made lower case, and the commas and other punctuation have been removed.
+
+def splittext(text, split):
+    #This splits the text into split number of lists, with the first leter of text going into the first list, the second into the second list and so on. When it runs out of lists it will go back to the first list. This is useful for vigenere solvers.
+    if split > 1:
+        textlist = []
+        split1 = []
+        count = 0
+        for i in text:
+            count += 1
+            if count % split == 0:
+                split1.append(i)
+            else:
+                textlist.append(i)
+        output = splittext(''.join(textlist), split - 1)
+        output.append(split1)
+        return(output)
+    else:
+        textlist = []
+        output = []
+        for i in text:
+            textlist.append(i)
+        output.append(textlist)
+        return(output)
+    #Example
+    #print(splittext("hello my name is daniel", 2))
+    #This prints [['h', 'l', 'o', 'm', ' ', 'a', 'e', 'i', ' ', 'a', 'i', 'l'], ['e', 'l', ' ', 'y', 'n', 'm', ' ', 's', 'd', 'n', 'e']], because the first list has the 1st, 3rd, 5th ,7th and so on letters of the text, and the second list has the 2nd, 4th, 6th, 8th and so on letters of the text, so it has been split into two lists.
+
+def tentobase(number, base):
+    #This converts a number in base 10 into another base.
+    number1 = number
+    count = 0
+    while True:
+        count += 1
+        if base ** count > number1:
+            break
+    output = []
+    for i in range (count):
+        output.append(number1 // (base ** (count - i - 1)))
+        number1 -= (number1 // (base ** (count - i - 1))) * (base ** (count - i - 1))
+    return(output)
+    #Example
+    #print(tentobase(10, 2))
+    #This prints [1, 0, 1, 0], because 10 in base 2 (binary) is 1010.
+
+def englishdetection(text):
+    #This outputs a number relative to how many of the top fifty frequently, and of the words relating to the cipher challenge are used in the text.
+    cipherchallengewords = ["jamelia", "harry", "charlie", "cipher", "code"]
+    words = ["hello", "the", "of", "to", "and", "a", "in", "is", "it", "you", "that", "he", "was", "for", "on", "are", "with", "as", "I", "his", "they", "be", "at", "one", "have", "this", "from", "or", "had", "by", "hot", "word", "but", "what", "some", "we", "can", "out", "other", "were", "all", "there", "when", "up", "use", "your", "how", "said", "an", "each", "she", "which", "do", "their", "time", "if", "will", "way", "about", "many", "then", "them", "write", "would", "like", "so", "these", "her", "long", "make", "thing", "see", "him", "two", "has", "look", "more", "day", "could", "go", "come", "did", "number", "sound", "no", "most", "people", "my", "over", "know", "water", "than", "call", "first", "who", "may", "down", "side", "been", "now", "find", "any", "new", "work", "part", "take", "get", "place", "made", "live", "where", "after", "back", "little", "only", "round", "man", "year", "came", "show", "every", "good", "me", "give", "our", "under", "name", "very", "through", "just", "form", "sentence", "great", "think", "say", "help", "low", "line", "differ", "turn", "cause", "much", "mean", "before", "move", "right", "boy", "old", "too", "same", "tell", "does", "set", "three", "want", "air", "well", "also", "play", "small", "end", "put", "home", "read", "hand", "port", "large", "spell", "add", "even", "land", "here", "must", "big", "high", "such", "follow", "act", "why", "ask", "men", "change", "went", "light", "kind", "off", "need", "house", "picture", "try"]
+    text1 = onlyletters(text)
+    hits = 0
+    for i in words:
+        if i in text1:
+            hits += 2 ** len(i)
+    for i in cipherchallengewords:
+        hits += 4 ** len(i)
+    return(hits)
+    #Example
+    #print(englishdetection("hello, my name is daniel and I would like to test this code."))
+    #This prints 50, so you can presume fairly safely that the text is in English.
+
+def solveaffine(text):
+    #This outputs what it thinks was the original unencrypted message (using the affine shift cipher) that turned into text.
+    affineshifts = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
+    output = "Error!"
+    highesthits = 0
+    for i in affineshifts:
+        for j in range (26):
+            if highesthits < englishdetection(onlyletters(affineshifttext(text, j, i))):
+                output = affineshifttext(text, j, i)
+                highesthits = englishdetection(onlyletters(affineshifttext(text, j, i)))
+    return(output.lower())
+    #Example
+    #print(solveaffine("oziix"))
+    #This prints hello, because oziix is hello affine shifted with multiplication 5 and shift 5.
+    
+def solvecaesar(text):
+    #This outputs what it thinks was the original unencrypted message (using the caesar shift cipher) that turned into text.
+    output = "Error!"
+    highesthits = 0
+    for i in range (26):
+        if highesthits < englishdetection(onlyletters(affineshifttext(text, i))):
+            output = affineshifttext(text, i)
+            highesthits = englishdetection(onlyletters(affineshifttext(text, i)))
+    return(output.lower())
+    #Example
+    #print(solvecaesar("ifmmp"))
+    #This prints hello, because ifmmp is hello caesar shifted by 1.
+
+def wordtonum(word):
+    output = []
+    alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    for i in word:
+        output.append(alphabet.index(i))
+    return(''.join(output))
+
+def numtoword(num):
+    output = []
+    alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    for i in num:
+        output.append(alphabet[i])
+    return(output)
+
+def transpostype2(text, key, ed=0, padding="x"):
+    if len(text) % len(key) == 0:
+        if ed == 0:
+            columns = []
+            output = []
+            newkey = []
+            for i in range(len(key)):
+                newkey.append(key.index(i))
+            for i in splittext(text, len(newkey)):
+                columns.append(''.join(i))
+            for i in newkey:
+                output.append(columns[i])
+            return(''.join(output))
+        else:
+            columns = []
+            for i in range(len(text) / len(key)):
+                for j in key:
+                    columns.append(text[(j * (len(text) / len(key))) + i])
+            return(''.join(columns))
+    else:
+        thing = []
+        for i in text:
+            thing.append(i)
+        for i in range(len(key) - (len(text) % len(key))):
+            thing.append(padding)
+        return(transpostype2(''.join(thing), key, ed, padding))
+
+def mynot(boolean):
+    if boolean:
+        return(False)
+    else:
+        return(True)
+
+def myrange(num):
+    count = 0
+    output = []
+    while mynot(count == num):
+        output.append(count)
+        count += 1
+    return(output)
+
+def reversestring(string):
+    output = stringlist(string)
+    output.reverse()
+    return(''.join(output))
+
+def stringlist(string):
+    output = []
+    for i in string:
+        output.append(i)
+    return(output)
+
+def solvetranspostype1(text, keylen=0, hit=0):
+    if mynot(keylen == 0):
+        highesthits = 0
+        output = "Error!"
+        for i in myrange(factorial(keylen)):
+            decrypt = transpostype1(text, factorialgen(range(keylen), i), 1)
+            hits = englishdetection(decrypt)
+            if hits > highesthits:
+                highesthits = hits
+                output = decrypt
+        output2 = []
+        output2.append(''.join(output))
+        if hit == 1:
+            output2.append(highesthits)
+        return(output2)
+    else:
+        print("Are you sure you would like to continue?")
+        print("This will try a lot of combinations, and could take a couple of hours.")
+        print("The combinations this will try are:")
+        print(findfactors(len(text)))
+        ask = input("Continue? ")
+        highesthits = 0
+        if ask == "yes":
+            for i in findfactors(len(text)):
+                decrypt = solvetranspostype1(text, i, 1)
+                if decrypt[1] > highesthits:
+                    highesthits = decrypt[1]
+                    print(decrypt[0])
+            return(decrypt[0])
+
+def transpostype1(text, key, ed=0, padding="x"):
+    if len(text) % len(key) == 0:
+        if ed == 0:
+            newkey = []
+            for i in range(len(key)):
+                newkey.append(key.index(i))
+            columns = splittext(text, len(newkey))
+            output = []
+            for i in range(len(columns[0])):
+                for j in newkey:
+                    output.append(columns[j][i])
+            return(''.join(output))
+        else:
+            columns = splittext(text, len(key))
+            output = []
+            for i in range(len(columns[0])):
+                for j in key:
+                    output.append(columns[j][i])
+            return(''.join(output))
+    else:
+        thing = []
+        for i in text:
+            thing.append(i)
+        for i in range(len(key) - (len(text) % len(key))):
+            thing.append(padding)
+        return(transpostype1(''.join(thing), key, ed, padding))
+
+def findfactors(num):
+    output = []
+    for i in range(int(ceil(num ** 0.5))):
+        if num % (i + 1) == 0:
+            output.append(i + 1)
+    return(output)
+
+def solvetranspostype2(text, keylen=0, hit=0):
+    if mynot(keylen == 0):
+        highesthits = 0
+        output = "Error!"
+        for i in myrange(factorial(keylen)):
+            decrypt = transpostype2(text, factorialgen(range(keylen), i), 1)
+            hits = englishdetection(decrypt)
+            if hits > highesthits:
+                highesthits = hits
+                output = decrypt
+        output2 = []
+        output2.append(''.join(output))
+        if hit == 1:
+            output2.append(highesthits)
+        return(output2)
+    else:
+        print("Are you sure you would like to continue?")
+        print("This will try a lot of combinations, and could take a couple of hours.")
+        print("The combinations this will try are:")
+        print(findfactors(len(text)))
+        ask = input("Continue? ")
+        #if ask == "yes":
+            #for i in findfactors(len(text)):
+                #print(solvetranspostype2(text, i))
+        if ask == "yes":
+            for i in findfactors(len(text)):
+                decrypt = solvetranspostype1(text, i, 1)
+                if decrypt[1] > highesthits:
+                    highesthits = decrypt[1]
+                    print(decrypt[0])
+            return(decrypt[0])
+
+def vigeneretext(text, key, ed=0):
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    output = []
+    keyindex = 0
+    key = onlyletters(key.upper()).upper()
+    for letter in text:
+        num = alphabet.find(letter.upper())
+        if num != -1:
+            if ed == 0:
+                num += alphabet.find(key[keyindex])
+            else:
+                num -= alphabet.find(key[keyindex])
+            num %= len(alphabet)
+            if letter.isupper():
+                output.append(alphabet[num])
+            elif letter.islower():
+                output.append(alphabet[num])
+            keyindex += 1
+            if keyindex == len(key):
+                keyindex=0
+        else:
+            output.append(letter)
+    return(''.join(output))
+
+#def solvevigenere(text, maxlen=15):
+#    for i in range (maxlen):
