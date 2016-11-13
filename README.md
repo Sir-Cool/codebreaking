@@ -2,3 +2,4 @@
 Python files that are useful for codebreaking.
 Just download the folder.
 Soon there will be GUI, made in Tkinter.
+I highly reccommend using spyder to use these files.
